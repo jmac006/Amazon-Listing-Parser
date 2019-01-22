@@ -7,3 +7,7 @@ Make sure to replace "User-Agent" data with your own data. Find out your user ag
 
 Library dependencies:
 Install Python, Python PIP, Python Requests, and Python LXML
+
+Pandas, Dash
+
+Must specify path of where JSON 'Rankings' folder is.
