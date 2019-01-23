@@ -32,6 +32,8 @@ ASIN_Dict = [] #contains the name along with the ASIN
 extracted_data = []
 graph_data = [] #only update graph_data with specific ASIN when selected, instead of populating entire list of ASINs
 Products = []
+#optionList = []
+optionList = [{'label': Products[index]["NAME"], 'value': Products[index]["ASIN"]} for index in range(len(Products))]
 server = flask.Flask('app')
 server.secret_key = os.environ.get('secret_key', 'secret')
 
@@ -39,36 +41,36 @@ dataFrame = pd.read_csv('https://raw.githubusercontent.com/plotly/datasets/maste
 
 app = dash.Dash('app', server=server)
 app.scripts.config.serve_locally = False
-dcc._js_dist[0]['external_url'] = 'https://cdn.plot.ly/plotly-basic-latest.min.js'
 
 file_names = [os.path.basename(x) for x in glob.glob('/Users/justinm/Documents/Coding/Rankings/*.json')]
 
-#optionList = [{'label': }]
-optionList = [{'label': Products[index]["NAME"], 'value': Products[index]["ASIN"]} for index in range(len(Products))]
 app.layout = dashHTML.Div([
 	dashHTML.H1('Category Rankings'),
 	dcc.Dropdown(
 		id='my-dropdown',
-		options=[
-			{'label': 'Tesla', 'value': 'TSLA'},
-			#{'label': optionList[0]["NAME"], 'value': 'AAPL'},
-			{'label': 'Coke', 'value': 'COKE'}
-		],
-		value='Passion'
+		options=optionList,
+		value=ASIN_List[0],
 	),
 	dcc.Graph(id='my-graph')
 ], className="container")
 
+@app.callback(Output('my-dropdown', component_property='options'),
+			  [Input('my-dropdown', component_property='value')])
+
+def update_dropdown(selected_dropdown_value):
+	return [{'label': Products[index]["NAME"], 'value': Products[index]["ASIN"]} for index in range(len(Products))]
 
 @app.callback(Output('my-graph', 'figure'),
-			  [Input('my-dropdown', 'value')])
+			  [dash.dependencies.Input('my-dropdown', 'value')])
 
 def update_graph(selected_dropdown_value):
 	#clear graph_data when called
+	print("Selected value: ", selected_dropdown_value)
 	#call combineData(ASIN)
 
+	combineData(selected_dropdown_value)
+
 	#print(DatabyCategory)
-	#print(range(len(graph_data)-1))
 	Date_range = [graph_data[index]["Date"] for index in range(len(graph_data))]
 	print(Date_range)
 
@@ -108,6 +110,7 @@ def update_graph(selected_dropdown_value):
 		dayRank = []
 	
 	print(CategoryData)
+
 	return{
 		'data': CategoryData,
 		'layout': {
@@ -120,8 +123,7 @@ def update_graph(selected_dropdown_value):
 		}
 	}
 
-
-def AmzonParser(url, ASIN):
+def AmazonParser(url, ASIN):
 	headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.98 Safari/537.36'}
 	page = requests.get(url,headers=headers)
 	while True:
@@ -214,7 +216,7 @@ def ReadASIN():
 	for ASIN in ASIN_List:
 		url = "http://www.amazon.com/dp/"+ASIN
 		print ("Processing: " + url)
-		extracted_data.append(AmzonParser(url, ASIN))
+		extracted_data.append(AmazonParser(url, ASIN))
 		sleep(5)
 	file_name = time.strftime("%m-%d-%Y") + " Category Scrape.json"
 	print(file_name)
@@ -223,11 +225,13 @@ def ReadASIN():
 
 
 
-def combineData(ASIN):
+def combineData(ASIN): #find all data for specific ASIN, while populating optionList
 #	date
 	path = glob.glob("/Users/justinm/Documents/Coding/Rankings/*.json") #Grab all JSON files from path
 	#file_names = [os.path.basename(x) for x in glob.glob('/Users/justinm/Documents/Coding/Rankings/*.json')]
 	global Products #declaring variable to modify global variable
+	global graph_data
+	graph_data = []
 	for file in path:
 		#f = open(file, 'r')
 		data = json.loads(open(file).read())
@@ -241,16 +245,18 @@ def combineData(ASIN):
 				del rankings[0] #remove "Amazon Best Sellers Rank title from list"
 				file_date = os.path.basename(file).split()[0]
 				graph_data.append({'Date': file_date,'Ranks': rankings})
-
 	
 	#Products= list(set(Products)) #remove duplicate names			
 	#dates = [date.split()[0] for date in file_names] #split file name to list of dates
 	#print(dates)
-
+	global optionList
+	optionList = [{'label': Products[index]["NAME"], 'value': Products[index]["ASIN"]} for index in range(len(Products))]
+	#print(optionList)
 
 if __name__ == "__main__":
+	#print("Gathering new information on ASINs")
 	#ReadASIN() #Read new Data
 	combineData("B06Y27GL9S")
-	#print(Products)
+	print(optionList)
 	#print(graph_data)
 	app.run_server() #Build Graph using Dash
