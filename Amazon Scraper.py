@@ -4,6 +4,8 @@ Created by: Justin Mac
 Library Dependencies:
 Install Python, Python PIP, Python Requests, and Python LXML
 
+Graph Library Dependencies: dash, dash-html-components, dash-core-components, dash-table
+
 '''
 from lxml import html  
 import csv,os,json
@@ -12,6 +14,114 @@ import requests
 from time import sleep
 import re
 import time
+import glob #import all files in folder
+
+#Dash Dependencies
+import dash
+from dash.dependencies import Input, Output
+import dash_core_components as dcc
+import dash_html_components as dashHTML
+import plotly.graph_objs as go
+import flask
+import pandas as pd
+
+#Global Variables
+ASIN_List = ['B06Y27GL9S', #Dr. Fulbright Kegel Balls
+			]
+ASIN_Dict = [] #contains the name along with the ASIN
+extracted_data = []
+graph_data = [] #only update graph_data with specific ASIN when selected, instead of populating entire list of ASINs
+Products = []
+server = flask.Flask('app')
+server.secret_key = os.environ.get('secret_key', 'secret')
+
+dataFrame = pd.read_csv('https://raw.githubusercontent.com/plotly/datasets/master/hello-world-stock.csv')
+
+app = dash.Dash('app', server=server)
+app.scripts.config.serve_locally = False
+dcc._js_dist[0]['external_url'] = 'https://cdn.plot.ly/plotly-basic-latest.min.js'
+
+file_names = [os.path.basename(x) for x in glob.glob('/Users/justinm/Documents/Coding/Rankings/*.json')]
+
+#optionList = [{'label': }]
+optionList = [{'label': Products[index]["NAME"], 'value': Products[index]["ASIN"]} for index in range(len(Products))]
+app.layout = dashHTML.Div([
+	dashHTML.H1('Category Rankings'),
+	dcc.Dropdown(
+		id='my-dropdown',
+		options=[
+			{'label': 'Tesla', 'value': 'TSLA'},
+			{'label': 'Apple', 'value': 'AAPL'},
+			{'label': 'Coke', 'value': 'COKE'}
+		],
+		value='TSLA'
+	),
+	dcc.Graph(id='my-graph')
+], className="container")
+
+
+@app.callback(Output('my-graph', 'figure'),
+			  [Input('my-dropdown', 'value')])
+
+def update_graph(selected_dropdown_value):
+	#clear graph_data when called
+	#call combineData(ASIN)
+
+	#print(DatabyCategory)
+	#print(range(len(graph_data)-1))
+	Date_range = [graph_data[index]["Date"] for index in range(len(graph_data))]
+	print(Date_range)
+
+	Category1 = [graph_data[index]["Ranks"][0].split()[0] for index in range(len(graph_data))]
+	#Category1 = [Category1[index].replace(",",'') for index in range(len(Category1))]
+	#Category1 = list(map(int,Category1))
+	print(Category1)
+	Category2 = [graph_data[index]["Ranks"][1].split()[0] for index in range(len(graph_data))] #worried about out of range
+	#Category2 = [Category2[index].replace(",",'') for index in range(len(Category2))]
+	#Category2 = list(map(int,Category2))
+	print(Category2)
+	Category3 = [graph_data[index]["Ranks"][2].split()[0] for index in range(len(graph_data))]
+	#Category3 = [Category3[index].replace(",",'') for index in range(len(Category3))]
+	#Category3 = list(map(int,Category3))
+	#print(Category3)
+	
+	
+	return{
+		'data': [{
+			'x': Date_range,
+			'y': Category1,
+			'type': 'scatter',
+			'line': {
+				'width': 3,
+				'shape': 'spline',
+				'name': 'in blah blah'
+		}},
+		{
+			'x': Date_range,
+			'y': Category2,
+			'type': 'scatter',
+			'line': {
+				'width': 3,
+				'shape': 'spline'
+		}},
+		{
+			'x': Date_range,
+			'y': Category3,
+			'type': 'scatter',
+			'line': {
+				'width': 3,
+				'shape': 'spline'
+		}},
+		],
+		'layout': {
+			'margin': {
+				'l': 30,
+				'r': 20,
+				'b': 30,
+				't': 20
+			}
+		}
+	}
 
 
 def AmzonParser(url, ASIN):
@@ -103,33 +213,7 @@ def AmzonParser(url, ASIN):
 
 def ReadASIN():
 	# ASIN_List = csv.DictReader(open(os.path.join(os.path.dirname(__file__),"Asinfeed.csv")))
-	ASIN_List = ['B06Y27GL9S', #Dr. Fulbright Kegel Balls
-	'''
-		'B0089175GE', #Magic Wand Speed Controller Dial Kit
-		'B01DCHMIF2', #Magic Wand Free Travel Wand
-		'B00MWB5I9S', #All In One 4 Tip Shower Enema System
-		'B06WD5QC6H', #Sex Stool
-		'B008ASBIU0', #Lube Launcher
-		'B01BHAJ6MO', #CleanStream Enema Silicone Attachment Kit
-		'B07L9J9518', #Lube Launcher 2 Pack
-		'B07GSH8STW', #Strapless Strap On Black
-		'B07GSG6LHH', #Strapless Strap On Pink
-		'B0091PJDX0', #CleanStream Anal Lubricant
-		'B00EF8OL0S', #Lidocaine Lube 8oz.
-		'B00375LMSE', #Passion 2 oz.
-		'B00375LMRU', #Passion 4 oz.
-		'B00711X53U', #Passion 8 oz.
-		'B004OEBMAK', #Passion 16 oz.
-		'B006JR1N72', #Passion 34 oz.
-		'B005MR3IVO', #Passion 55 gal. Water Based Drum
-		#'B07MKS1VZY', #Passion 55 gal. Performance Drum
-		'B07BH822QF', #Jesse Jane Doggy Style
-		'B07BH7TW7K', #Missionary Masturbator
-		'B07M5H7WFY', #Jesse Jane Bend Her Over
-		'B07M8WN6W5', #Jesse Jane Side Action
-	'''
-	]
-	extracted_data = []
+	
 	for ASIN in ASIN_List:
 		url = "http://www.amazon.com/dp/"+ASIN
 		print ("Processing: " + url)
@@ -138,16 +222,37 @@ def ReadASIN():
 	file_name = time.strftime("%m-%d-%Y") + " Category Scrape.json"
 	print(file_name)
 	f=open(file_name,'w')
-	json.dump(extracted_data,f,indent=4)
+	json.dump(extracted_data,f,indent=4) #Convert dictionary to JSON file
 
 
-'''
-#def combineData :
+
+def combineData(ASIN):
 #	date
-	for f in glob.glob("/Users/justinm/Documents/Coding/Amazon"):
-			with open(f, "r", encoding="UTF-16") as read_file:
+	path = glob.glob("/Users/justinm/Documents/Coding/Rankings/*.json") #Grab all JSON files from path
+	#file_names = [os.path.basename(x) for x in glob.glob('/Users/justinm/Documents/Coding/Rankings/*.json')]
+	global Products #declaring variable to modify global variable
+	for file in path:
+		#f = open(file, 'r')
+		data = json.loads(open(file).read())
+		for i in data:
+			key = {'NAME': i['NAME'], 'ASIN': i['ASIN']}
+			Products.append(key)
+			if i['URL'] == ("http://www.amazon.com/dp/" + ASIN):
+				#print(file)
+				rankings = i["RANK"]
+				del rankings[0] #remove "Amazon Best Sellers Rank title from list"
+				file_date = os.path.basename(file).split()[0]
+				graph_data.append({'Date': file_date,'Ranks': rankings})
 
-'''
+	
+	#Products= list(set(Products)) #remove duplicate names			
+	#dates = [date.split()[0] for date in file_names] #split file name to list of dates
+	#print(dates)
+
 
 if __name__ == "__main__":
-	ReadASIN()
+	#ReadASIN() #Read new Data
+	combineData("B06Y27GL9S")
+	print(Products)
+	#print(graph_data)
+	#app.run_server() #Build Graph using Dash
