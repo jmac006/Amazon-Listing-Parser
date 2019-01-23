@@ -51,10 +51,10 @@ app.layout = dashHTML.Div([
 		id='my-dropdown',
 		options=[
 			{'label': 'Tesla', 'value': 'TSLA'},
-			{'label': 'Apple', 'value': 'AAPL'},
+			#{'label': optionList[0]["NAME"], 'value': 'AAPL'},
 			{'label': 'Coke', 'value': 'COKE'}
 		],
-		value='TSLA'
+		value='Passion'
 	),
 	dcc.Graph(id='my-graph')
 ], className="container")
@@ -72,47 +72,44 @@ def update_graph(selected_dropdown_value):
 	Date_range = [graph_data[index]["Date"] for index in range(len(graph_data))]
 	print(Date_range)
 
+	'''
 	Category1 = [graph_data[index]["Ranks"][0].split()[0] for index in range(len(graph_data))]
 	#Category1 = [Category1[index].replace(",",'') for index in range(len(Category1))]
 	#Category1 = list(map(int,Category1))
-	print(Category1)
+	#print(Category1)
 	Category2 = [graph_data[index]["Ranks"][1].split()[0] for index in range(len(graph_data))] #worried about out of range
 	#Category2 = [Category2[index].replace(",",'') for index in range(len(Category2))]
 	#Category2 = list(map(int,Category2))
-	print(Category2)
+	#print(Category2)
 	Category3 = [graph_data[index]["Ranks"][2].split()[0] for index in range(len(graph_data))]
 	#Category3 = [Category3[index].replace(",",'') for index in range(len(Category3))]
 	#Category3 = list(map(int,Category3))
 	#print(Category3)
+	'''
+	CategoryData = []
+	print(graph_data)
+
+	dayRank = []
+	for i in range(len(graph_data[1]["Ranks"])): #check to see how many rankings there are and iterate through the number of rankings
+		for day in range(len(Date_range)): #iterate through the days, find the Rankings, and check to see if there are no rankings for that day (y-coord)
+			if graph_data[day]["Ranks"] == []:
+				yRank = "Not Available"
+			else:
+				yRank = graph_data[day]["Ranks"][i].split()[0].replace(",","")
+			dayRank.append(yRank)
+
+		CategoryData.append({'x': Date_range, 
+			'y': dayRank,
+			'type': 'scatter',
+			'line': {
+			'width': 3,
+			'shape': 'spline'
+			}})
+		dayRank = []
 	
-	
+	print(CategoryData)
 	return{
-		'data': [{
-			'x': Date_range,
-			'y': Category1,
-			'type': 'scatter',
-			'line': {
-				'width': 3,
-				'shape': 'spline',
-				'name': 'in blah blah'
-		}},
-		{
-			'x': Date_range,
-			'y': Category2,
-			'type': 'scatter',
-			'line': {
-				'width': 3,
-				'shape': 'spline'
-		}},
-		{
-			'x': Date_range,
-			'y': Category3,
-			'type': 'scatter',
-			'line': {
-				'width': 3,
-				'shape': 'spline'
-		}},
-		],
+		'data': CategoryData,
 		'layout': {
 			'margin': {
 				'l': 30,
@@ -235,7 +232,8 @@ def combineData(ASIN):
 		#f = open(file, 'r')
 		data = json.loads(open(file).read())
 		for i in data:
-			key = {'NAME': i['NAME'], 'ASIN': i['ASIN']}
+			data_ASIN = i['URL'].replace("http://www.amazon.com/dp/","")
+			key = {'NAME': i['NAME'], 'ASIN': data_ASIN}
 			Products.append(key)
 			if i['URL'] == ("http://www.amazon.com/dp/" + ASIN):
 				#print(file)
@@ -253,6 +251,6 @@ def combineData(ASIN):
 if __name__ == "__main__":
 	#ReadASIN() #Read new Data
 	combineData("B06Y27GL9S")
-	print(Products)
+	#print(Products)
 	#print(graph_data)
-	#app.run_server() #Build Graph using Dash
+	app.run_server() #Build Graph using Dash
