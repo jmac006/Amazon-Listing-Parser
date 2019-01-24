@@ -55,9 +55,10 @@ app.layout = dashHTML.Div([
 ], className="container")
 
 @app.callback(Output('my-dropdown', component_property='options'),
-			  [Input('my-dropdown', component_property='value')])
+			  [Input('my-graph', component_property='style')])
 
 def update_dropdown(selected_dropdown_value):
+	#print(Products)
 	return [{'label': Products[index]["NAME"], 'value': Products[index]["ASIN"]} for index in range(len(Products))]
 
 @app.callback(Output('my-graph', 'figure'),
@@ -65,14 +66,14 @@ def update_dropdown(selected_dropdown_value):
 
 def update_graph(selected_dropdown_value):
 	#clear graph_data when called
-	print("Selected value: ", selected_dropdown_value)
+	#print("Selected value: ", selected_dropdown_value)
 	#call combineData(ASIN)
 
 	combineData(selected_dropdown_value)
 
 	#print(DatabyCategory)
 	Date_range = [graph_data[index]["Date"] for index in range(len(graph_data))]
-	print(Date_range)
+	
 
 	'''
 	Category1 = [graph_data[index]["Ranks"][0].split()[0] for index in range(len(graph_data))]
@@ -89,10 +90,10 @@ def update_graph(selected_dropdown_value):
 	#print(Category3)
 	'''
 	CategoryData = []
-	print(graph_data)
 
 	dayRank = []
-	for i in range(len(graph_data[1]["Ranks"])): #check to see how many rankings there are and iterate through the number of rankings
+	RecentDataIndex = len(graph_data)-1
+	for i in range(len(graph_data[RecentDataIndex]["Ranks"])): #check to see how many rankings there are and iterate through the number of rankings
 		for day in range(len(Date_range)): #iterate through the days, find the Rankings, and check to see if there are no rankings for that day (y-coord)
 			if graph_data[day]["Ranks"] == []:
 				yRank = "Not Available"
@@ -100,16 +101,17 @@ def update_graph(selected_dropdown_value):
 				yRank = graph_data[day]["Ranks"][i].split()[0].replace(",","")
 			dayRank.append(yRank)
 
+		categoryName = ' '.join(graph_data[day]["Ranks"][i].split()[2:])
+		print(categoryName)
 		CategoryData.append({'x': Date_range, 
 			'y': dayRank,
 			'type': 'scatter',
+			'name': categoryName,
 			'line': {
 			'width': 3,
 			'shape': 'spline'
 			}})
 		dayRank = []
-	
-	print(CategoryData)
 
 	return{
 		'data': CategoryData,
@@ -238,7 +240,8 @@ def combineData(ASIN): #find all data for specific ASIN, while populating option
 		for i in data:
 			data_ASIN = i['URL'].replace("http://www.amazon.com/dp/","")
 			key = {'NAME': i['NAME'], 'ASIN': data_ASIN}
-			Products.append(key)
+			if key not in Products: #ensure no duplicates
+				Products.append(key)
 			if i['URL'] == ("http://www.amazon.com/dp/" + ASIN):
 				#print(file)
 				rankings = i["RANK"]
@@ -256,7 +259,6 @@ def combineData(ASIN): #find all data for specific ASIN, while populating option
 if __name__ == "__main__":
 	#print("Gathering new information on ASINs")
 	#ReadASIN() #Read new Data
-	combineData("B06Y27GL9S")
-	print(optionList)
+	combineData("Init")
 	#print(graph_data)
 	app.run_server() #Build Graph using Dash
