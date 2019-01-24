@@ -13,7 +13,7 @@ Install Dash Dependenceies: dash, dash.dependencies, dash_core_components, dash_
 Must specify path of where JSON 'Rankings' folder is. Specify ASINs to scrape under variable ASIN_List.
 
 Graph output of Amazon best seller ranking
-*Must have archive of rankings, or run the program over a period of at least two days*
+(*Must have archive of rankings, or run the program over a period of at least two days*)
 
 <br />
 <br />
