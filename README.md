@@ -8,6 +8,9 @@ Make sure to replace "User-Agent" data with your own data. Find out your user ag
 Library dependencies:
 Install Python, Python PIP, Python Requests, and Python LXML
 
-Pandas, Dash
+Install Dash Dependenceies: dash, dash.dependencies, dash_core_components, dash_html_components, flask
 
 Must specify path of where JSON 'Rankings' folder is.
+
+Graph output of Amazon best seller ranking (must have archive of rankings/run the program over a period of at least two days): 
+![alt text](https://github.com/jmac006/Amazon-Listing-Parser/blob/master/category.PNG)
