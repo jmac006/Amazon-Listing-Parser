@@ -10,11 +10,11 @@ Install Python, Python PIP, Python Requests, and Python LXML
 
 Install Dash Dependenceies: dash, dash.dependencies, dash_core_components, dash_html_components, flask
 
-Must specify path of where JSON 'Rankings' folder is.
+Must specify path of where JSON 'Rankings' folder is. Specify ASINs to scrape under variable ASIN_List.
 
-Graph output of Amazon best seller ranking (must have archive of rankings/run the program over a period of at least two days): 
+Graph output of Amazon best seller ranking
+*Must have archive of rankings, or run the program over a period of at least two days*
 
-<br />
 <br />
 <br />
 
