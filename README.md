@@ -13,4 +13,9 @@ Install Dash Dependenceies: dash, dash.dependencies, dash_core_components, dash_
 Must specify path of where JSON 'Rankings' folder is.
 
 Graph output of Amazon best seller ranking (must have archive of rankings/run the program over a period of at least two days): 
+
+<br />
+<br />
+<br />
+
 ![alt text](https://github.com/jmac006/Amazon-Listing-Parser/blob/master/category.PNG)
