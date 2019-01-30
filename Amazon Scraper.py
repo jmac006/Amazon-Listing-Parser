@@ -99,29 +99,12 @@ def update_dropdown(selected_dropdown_value):
 
 def update_graph(selected_dropdown_value):
 	#clear graph_data when called
-	#print("Selected value: ", selected_dropdown_value)
 	#call combineASINData(ASIN)
 
 	combineASINData(selected_dropdown_value)
 
-	#print(DatabyCategory)
 	Date_range = [graph_data[index]["Date"] for index in range(len(graph_data))]
 	
-
-	'''
-	Category1 = [graph_data[index]["Ranks"][0].split()[0] for index in range(len(graph_data))]
-	#Category1 = [Category1[index].replace(",",'') for index in range(len(Category1))]
-	#Category1 = list(map(int,Category1))
-	#print(Category1)
-	Category2 = [graph_data[index]["Ranks"][1].split()[0] for index in range(len(graph_data))] #worried about out of range
-	#Category2 = [Category2[index].replace(",",'') for index in range(len(Category2))]
-	#Category2 = list(map(int,Category2))
-	#print(Category2)
-	Category3 = [graph_data[index]["Ranks"][2].split()[0] for index in range(len(graph_data))]
-	#Category3 = [Category3[index].replace(",",'') for index in range(len(Category3))]
-	#Category3 = list(map(int,Category3))
-	#print(Category3)
-	'''
 	CategoryData = []
 
 	dayRank = []
@@ -136,7 +119,8 @@ def update_graph(selected_dropdown_value):
 			#change the date range
 			for index in range(len(Date_range)):
 				if graph_data[0]["Ranks"][0].split()[2:] != graph_data[index]["Ranks"][0].split()[2:]:
-					Date_range.pop(index)
+					Date_range = Date_range[0:index]
+					break
 			for i in range(len(graph_data[0]["Ranks"])): #check to see how many rankings there are and iterate through the number of rankings
 				for day in range(len(Date_range)): #iterate through the days, find the Rankings, and check to see if there are no rankings for that day (y-coord)
 					if graph_data[day]["Ranks"] == []:
