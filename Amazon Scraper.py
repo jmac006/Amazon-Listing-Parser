@@ -59,6 +59,8 @@ ASIN_List = ['B06Y27GL9S', #Dr. Fulbright Kegel Balls
 			'B0037A6A1I', #Passion Silicone 2oz.
 			'B0071N16KC', #Passion Silicone 4oz.
 			'B0071N16Q6', #Passion Silicone 8oz.
+			'B00HRINY8S', #CleanStream Silicone Anal 8oz.
+			'B007JHHRTE', #Tenga Passion Kit
 			]
 ASIN_Dict = [] #contains the name along with the ASIN
 json_data = [] #list of dictionaries
@@ -126,6 +128,77 @@ def update_graph(selected_dropdown_value):
 	RecentDataIndex = len(graph_data)-1
 	#dynamically create the lines on the graph
 	#print(graph_data)
+
+	#check to see if the category has changed since the baseline/initial data
+	if graph_data[0]["Ranks"][0].split()[2:] != graph_data[RecentDataIndex]["Ranks"][0].split()[2:]: #check if the initial category name changed
+		info = input("The initial category has changed. Would you like to track the initial data or the recent data?\n")
+		if info == 'i' or info == 'initial':
+			#change the date range
+			for index in range(len(Date_range)):
+				if graph_data[0]["Ranks"][0].split()[2:] != graph_data[index]["Ranks"][0].split()[2:]:
+					Date_range.pop(index)
+			for i in range(len(graph_data[0]["Ranks"])): #check to see how many rankings there are and iterate through the number of rankings
+				for day in range(len(Date_range)): #iterate through the days, find the Rankings, and check to see if there are no rankings for that day (y-coord)
+					if graph_data[day]["Ranks"] == []:
+						yRank = "Not Available"
+					else:
+						yRank = graph_data[day]["Ranks"][i].split()[0].replace(",","")
+					dayRank.append(yRank)
+
+				categoryName = ' '.join(graph_data[day]["Ranks"][i].split()[2:])
+				#print(categoryName)
+				CategoryData.append({
+					'x': Date_range, 
+					'y': dayRank,
+					'type': 'line',
+					'name': categoryName,
+					'line': {
+					'width': 3,
+					'shape': 'spline'
+				}})
+				dayRank = []
+		else:
+			#change the date range
+			for index in range(len(Date_range)):
+				if graph_data[RecentDataIndex]["Ranks"][0].split()[2:] != graph_data[index]["Ranks"][0].split()[2:]:
+					Date_range.pop(0)
+			startingIndex = [i for i,_ in enumerate(graph_data) if _['Date'] == Date_range[0]][0] 
+			for i in range(len(graph_data[RecentDataIndex]["Ranks"])): #check to see how many rankings there are and iterate through the number of rankings
+				for day in range(startingIndex, len(graph_data)): #iterate through the days, find the Rankings, and check to see if there are no rankings for that day (y-coord)
+					if graph_data[day]["Ranks"] == []:
+						yRank = "Not Available"
+					else:
+						yRank = graph_data[day]["Ranks"][i].split()[0].replace(",","")
+					dayRank.append(yRank)
+
+				categoryName = ' '.join(graph_data[startingIndex]["Ranks"][i].split()[2:])
+					#print(categoryName)
+				CategoryData.append({
+					'x': Date_range, 
+					'y': dayRank,
+					'type': 'line',
+					'name': categoryName,
+					'line': {
+					'width': 3,
+					'shape': 'spline'
+				}})
+				dayRank = []
+
+		return{
+			'data': CategoryData,
+			'layout': {
+				'showlegend': True,
+				'showexponent': 'All',
+				'margin': {
+					'l': 30,
+					'r': 20,
+					'b': 30,
+					't': 20
+				}
+			}
+		}
+
+	#Regular case
 	for i in range(len(graph_data[RecentDataIndex]["Ranks"])): #check to see how many rankings there are and iterate through the number of rankings
 		for day in range(len(Date_range)): #iterate through the days, find the Rankings, and check to see if there are no rankings for that day (y-coord)
 			if graph_data[day]["Ranks"] == []:
@@ -136,22 +209,22 @@ def update_graph(selected_dropdown_value):
 
 		categoryName = ' '.join(graph_data[day]["Ranks"][i].split()[2:])
 		#print(categoryName)
-		CategoryData.append({'x': Date_range, 
+		CategoryData.append({
+			'x': Date_range, 
 			'y': dayRank,
-			'type': 'scatter',
+			'type': 'line',
 			'name': categoryName,
-			'showexponent': 'none',
 			'line': {
 			'width': 3,
 			'shape': 'spline'
-			}})
+		}})
 		dayRank = []
 
 	return{
 		'data': CategoryData,
 		'layout': {
 			'showlegend': True,
-			'showexponent': 'none',
+			'showexponent': 'All',
 			'margin': {
 				'l': 30,
 				'r': 20,
@@ -303,7 +376,7 @@ def combineASINData(ASIN): #find all data for specific ASIN, while populating op
 	#print(optionList)
 
 if __name__ == "__main__":
-	grabInfo = input("Do you want to gather new information from ASIN List? (y/n)\n")
+	grabInfo = input("Do you want to gather new information from the list of ASINs? (y/n)\n")
 	if grabInfo == 'y':
 		print("Gathering new information on ASINs")
 		ReadASINList() #Read New Data
