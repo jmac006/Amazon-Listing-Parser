@@ -43,7 +43,7 @@ ASIN_List = ['B06Y27GL9S', #Dr. Fulbright Kegel Balls
 			'B00711X53U', #Passion 8 oz.
 			'B004OEBMAK', #Passion 16 oz.
 			'B006JR1N72', #Passion 34 oz.
-			'B005MR3IVO', #Passion 55 gal. Water Based Drum
+			#'B005MR3IVO', #Passion 55 gal. Water Based Drum
 			'B07BH822QF', #Jesse Jane Doggy Style
 			'B07BH7TW7K', #Missionary Masturbator
 			'B07M5H7WFY', #Jesse Jane Bend Her Over
@@ -60,7 +60,13 @@ ASIN_List = ['B06Y27GL9S', #Dr. Fulbright Kegel Balls
 			'B0071N16KC', #Passion Silicone 4oz.
 			'B0071N16Q6', #Passion Silicone 8oz.
 			'B00HRINY8S', #CleanStream Silicone Anal 8oz.
+			'B00BIDRI4O', #CleanStream 4 oz. AC323
 			'B007JHHRTE', #Tenga Passion Kit
+			'B07FXXN3TN', #USA Cocks Medium 6 in.
+			'B07FXN3HCK', #USA Cocks Medium 7 in.
+			'B07FXXNDDL', #USA Cocks Medium 8 in.
+			'B07FXXX4JJ', #USA Cocks Medium 9 in.
+			'B07FXY77BF', #USA Cocks Medium 10 in.
 			]
 ASIN_Dict = [] #contains the name along with the ASIN
 json_data = [] #list of dictionaries
@@ -112,8 +118,9 @@ def update_graph(selected_dropdown_value):
 	#dynamically create the lines on the graph
 	#print(graph_data)
 
-	#check to see if the category has changed since the baseline/initial data
-	if graph_data[0]["Ranks"][0].split()[2:] != graph_data[RecentDataIndex]["Ranks"][0].split()[2:]: #check if the initial category name changed
+	
+	#check to see if the category has changed since the baseline/initial data by checking if last word of the category matches
+	if graph_data[0]["Ranks"][0].split()[-1:] != graph_data[RecentDataIndex]["Ranks"][0].split()[-1:]: #check if the initial category name changed
 		info = input("The initial category has changed. Would you like to track the initial data or the recent data?\n")
 		if info == 'i' or info == 'initial':
 			#change the date range
@@ -172,7 +179,7 @@ def update_graph(selected_dropdown_value):
 			'data': CategoryData,
 			'layout': {
 				'showlegend': True,
-				'showexponent': 'All',
+				#'separators': '.,',
 				'margin': {
 					'l': 30,
 					'r': 20,
@@ -181,7 +188,7 @@ def update_graph(selected_dropdown_value):
 				}
 			}
 		}
-
+	
 	#Regular case
 	for i in range(len(graph_data[RecentDataIndex]["Ranks"])): #check to see how many rankings there are and iterate through the number of rankings
 		for day in range(len(Date_range)): #iterate through the days, find the Rankings, and check to see if there are no rankings for that day (y-coord)
@@ -200,7 +207,8 @@ def update_graph(selected_dropdown_value):
 			'name': categoryName,
 			'line': {
 			'width': 3,
-			'shape': 'spline'
+			'shape': 'spline',
+			'exponentformat': 'none',
 		}})
 		dayRank = []
 
@@ -208,7 +216,7 @@ def update_graph(selected_dropdown_value):
 		'data': CategoryData,
 		'layout': {
 			'showlegend': True,
-			'showexponent': 'All',
+			'exponentformat': 'none',
 			'margin': {
 				'l': 30,
 				'r': 20,
@@ -251,7 +259,6 @@ def AmazonParser(url, ASIN): #Grab information from ASIN URL and export it as a 
 
 			#Clean up ranking string
 			RANKING = ' '.join(RAW_RANKING).strip('\n') if RAW_RANKING else None
-
 			
 			if not RANKING:
 				RANKING = ["No Ranking"]
@@ -329,6 +336,7 @@ def ReadASINList():
 
 def combineASINData(ASIN): #find all data for specific ASIN, while populating optionList
 #	date
+	print(ASIN)
 	path = glob.glob("/Users/justinm/Documents/Coding/Rankings/*.json") #Grab all JSON files from path
 	#file_names = [os.path.basename(x) for x in glob.glob('/Users/justinm/Documents/Coding/Rankings/*.json')]
 	global Products #declaring variable to modify global variable
@@ -340,8 +348,9 @@ def combineASINData(ASIN): #find all data for specific ASIN, while populating op
 		for i in data:
 			data_ASIN = i['URL'].replace("http://www.amazon.com/dp/","")
 			key = {'NAME': i['NAME'], 'ASIN': data_ASIN}
-			if key not in Products: #ensure no duplicates
-				Products.append(key)
+			#if key not in Products: #ensure no duplicates
+			if not any(p['ASIN'] == data_ASIN for p in Products): #ensures no duplicates
+				Products.append(key) #append dictionary to Product array only if ASIN is not in the list
 			if i['URL'] == ("http://www.amazon.com/dp/" + ASIN):
 				#print(file)
 				rankings = i["RANK"]
@@ -364,6 +373,6 @@ if __name__ == "__main__":
 	if grabInfo == 'y':
 		print("Gathering new information on ASINs")
 		ReadASINList() #Read New Data
-	combineASINData("Init")
+	combineASINData("Initializing")
 	#print(graph_data)
-	app.run_server() #Build Graph using Dash
+	app.run_server(debug=False) #Build Graph using Dash
