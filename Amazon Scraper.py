@@ -67,6 +67,7 @@ ASIN_List = ['B06Y27GL9S', #Dr. Fulbright Kegel Balls
 			'B07FXXNDDL', #USA Cocks Medium 8 in.
 			'B07FXXX4JJ', #USA Cocks Medium 9 in.
 			'B07FXY77BF', #USA Cocks Medium 10 in.
+			'B07PGW1MSR', #Auto Spray Enema Bulb
 			]
 ASIN_Dict = [] #contains the name along with the ASIN
 json_data = [] #list of dictionaries
