@@ -119,7 +119,7 @@ def update_graph(selected_dropdown_value):
 	#dynamically create the lines on the graph
 	#print(graph_data)
 
-	
+	'''
 	#check to see if the category has changed since the baseline/initial data by checking if last word of the category matches
 	if graph_data[0]["Ranks"][0].split()[-1:] != graph_data[RecentDataIndex]["Ranks"][0].split()[-1:]: #check if the initial category name changed
 		info = input("The initial category has changed. Would you like to track the initial data or the recent data?\n")
@@ -189,29 +189,69 @@ def update_graph(selected_dropdown_value):
 				}
 			}
 		}
-	
-	#Regular case
-	for i in range(len(graph_data[RecentDataIndex]["Ranks"])): #check to see how many rankings there are and iterate through the number of rankings
-		for day in range(len(Date_range)): #iterate through the days, find the Rankings, and check to see if there are no rankings for that day (y-coord)
-			if graph_data[day]["Ranks"] == []:
-				yRank = "Not Available"
-			else:
-				yRank = graph_data[day]["Ranks"][i].split()[0].replace(",","")
-			dayRank.append(yRank)
+		'''
 
-		categoryName = ' '.join(graph_data[day]["Ranks"][i].split()[2:])
+	yRank = {}
+	#Regular case
+	for i in range(len(graph_data[0]["Ranks"])): #check to see how many rankings there are and iterate through the number of rankings
+		for day in range(len(Date_range)): #iterate through the days, find the Rankings, and check to see if there are no rankings for that day (y-coord)
+			print(day)
+			if graph_data[day]["Ranks"] == []:
+				print("1st case")
+				categoryName = ' '.join(graph_data[day]["Ranks"][i].split()[2:])
+				print(categoryName)
+				yRank = {
+						'Date': Date_range[day],
+						'value': "Not Available", 
+						'category': categoryName}
+				dayRank.append(yRank)
+			if len(graph_data[day]["Ranks"]) == len(graph_data[RecentDataIndex]["Ranks"]): #check to see if more or less y's to append
+				print("2nd case")
+				#numRanks = max(len(graph_data[day]["Ranks"]), len(graph_data[RecentDataIndex]["Ranks"]))
+				#print(len(graph_data[RecentDataIndex]["Ranks"]))
+				for j in range(len(graph_data[RecentDataIndex]["Ranks"])):
+					categoryName = ' '.join(graph_data[day]["Ranks"][j].split()[2:])
+					print(categoryName)
+					yRank = {
+						'Date': Date_range[day],
+						'value': graph_data[day]["Ranks"][j].split()[0].replace(",",""), 
+						'category': categoryName}
+					dayRank.append(yRank)
+			else: #only one category
+				print("3rd case")
+				categoryName = ' '.join(graph_data[day]["Ranks"][0].split()[2:])
+				print(categoryName)
+				yRank = {
+						'Date': Date_range[day],
+						'value': graph_data[day]["Ranks"][0].split()[0].replace(",",""), 
+						'category': categoryName}
+				dayRank.append(yRank)
+
+		#categoryName = ' '.join(graph_data[day]["Ranks"][i].split()[2:])
 		#print(categoryName)
-		CategoryData.append({
-			'x': Date_range, 
-			'y': dayRank,
-			'type': 'line',
-			'name': categoryName,
-			'line': {
-			'width': 3,
-			'shape': 'spline',
-			'exponentformat': 'none',
-		}})
-		dayRank = []
+		#print(dayRank[0].items())
+		# CategoryData.append({
+		# 	'x': Date_range[0:5], 
+		# 	'y': [dayRank[i]["value"]],
+		# 	'type': 'line', 
+		# 	'name': dayRank[i]["category"],
+		# 	'line': {
+		# 	'width': 3,
+		# 	'shape': 'spline',
+		# 	'exponentformat': 'none',
+		# }})
+		# dayRank = []
+	CategoryData.append({
+		'x': Date_range, 
+		'y': [dayRank[i]["value"] for i in range(len(dayRank))],
+		'type': 'line', 
+		'name': dayRank[i]["category"],
+		'line': {
+		'width': 3,
+		'shape': 'spline',
+		'exponentformat': 'none',
+	}})
+	dayRank = []
 
 	return{
 		'data': CategoryData,
@@ -361,7 +401,7 @@ def combineASINData(ASIN): #find all data for specific ASIN, while populating op
 					graph_data.insert(0,{'Date': i["DATE"],'Ranks': rankings})
 				else:
 					graph_data.append({'Date': file_date,'Ranks': rankings})
-	
+	#print(graph_data)
 	#Products= list(set(Products)) #remove duplicate names			
 	#dates = [date.split()[0] for date in file_names] #split file name to list of dates
 	#print(dates)
@@ -370,10 +410,14 @@ def combineASINData(ASIN): #find all data for specific ASIN, while populating op
 	#print(optionList)
 
 if __name__ == "__main__":
+	'''
 	grabInfo = input("Do you want to gather new information from the list of ASINs? (y/n)\n")
 	if grabInfo == 'y':
 		print("Gathering new information on ASINs")
 		ReadASINList() #Read New Data
-	combineASINData("Initializing")
+
+	'''
+	#combineASINData("Initializing")
+	combineASINData("B07PGW1MSR")
 	#print(graph_data)
 	app.run_server(debug=False) #Build Graph using Dash
