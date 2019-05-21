@@ -209,14 +209,18 @@ def update_graph(selected_dropdown_value):
 				print("2nd case")
 				#numRanks = max(len(graph_data[day]["Ranks"]), len(graph_data[RecentDataIndex]["Ranks"]))
 				#print(len(graph_data[RecentDataIndex]["Ranks"]))
+				ranks = []
+				categories = []
 				for j in range(len(graph_data[RecentDataIndex]["Ranks"])):
 					categoryName = ' '.join(graph_data[day]["Ranks"][j].split()[2:])
 					print(categoryName)
-					yRank = {
-						'Date': Date_range[day],
-						'value': graph_data[day]["Ranks"][j].split()[0].replace(",",""), 
-						'category': categoryName}
-					dayRank.append(yRank)
+					ranks.append(graph_data[day]["Ranks"][j].split()[0].replace(",",""))
+					categories.append(categoryName)
+				yRank = {
+					'Date': Date_range[day],
+					'value': ranks, 
+					'category': categories}
+				dayRank.append(yRank)
 			else: #only one category
 				print("3rd case")
 				categoryName = ' '.join(graph_data[day]["Ranks"][0].split()[2:])
@@ -241,16 +245,31 @@ def update_graph(selected_dropdown_value):
 		# 	'exponentformat': 'none',
 		# }})
 		# dayRank = []
-	CategoryData.append({
-		'x': Date_range, 
-		'y': [dayRank[i]["value"] for i in range(len(dayRank))],
-		'type': 'line', 
-		'name': dayRank[i]["category"],
-		'line': {
-		'width': 3,
-		'shape': 'spline',
-		'exponentformat': 'none',
-	}})
+
+	print(dayRank)
+	# CategoryData.append({
+	# 	'x': Date_range, 
+	# 	'y': [dayRank[i]["value"] for i in range(len(dayRank))],
+	# 	'type': 'line', 
+	# 	'name': [dayRank[i]["category"] for i in range(len(dayRank))],
+	# 	'line': {
+	# 	'width': 3,
+	# 	'shape': 'spline',
+	# 	'exponentformat': 'none',
+	# }})
+
+	# split the days based on category change
+	for rank in range(len(dayRank[i]["value"])):
+		CategoryData.append({
+			'x': Date_range, 
+			'y': [dayRank[i]["value"][rank] for i in range(len(dayRank))],
+			'type': 'line', 
+			'name': dayRank[0]["category"],
+			'line': {
+			'width': 3,
+			'shape': 'spline',
+			'exponentformat': 'none',
+		}})
 	dayRank = []
 
 	return{
