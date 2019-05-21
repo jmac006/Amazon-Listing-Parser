@@ -191,45 +191,24 @@ def update_graph(selected_dropdown_value):
 		}
 		'''
 
-	ranks = []
-	categories = []
+	
 	#Regular case
 	for i in range(len(graph_data[0]["Ranks"])): #check to see how many rankings there are and iterate through the number of rankings
 		for day in range(len(Date_range)): #iterate through the days, find the Rankings, and check to see if there are no rankings for that day (y-coord)
 			print(day)
-			if graph_data[day]["Ranks"] == []:
-				print("1st case")
-				categoryName = ' '.join(graph_data[day]["Ranks"][i].split()[2:])
-				print(categoryName)
-				yRank = {
-						'Date': Date_range[day],
-						'value': "Not Available", 
-						'category': categoryName}
-				dayRank.append(yRank)
-			if len(graph_data[day]["Ranks"]) == len(graph_data[RecentDataIndex]["Ranks"]): #check to see if more or less y's to append
-				print("2nd case")
-				#numRanks = max(len(graph_data[day]["Ranks"]), len(graph_data[RecentDataIndex]["Ranks"]))
-				#print(len(graph_data[RecentDataIndex]["Ranks"]))
+			ranks = []
+			categories = []
+			for j in range(len(graph_data[day]["Ranks"])):
 				
-				for j in range(len(graph_data[RecentDataIndex]["Ranks"])):
-					categoryName = ' '.join(graph_data[day]["Ranks"][j].split()[2:])
-					print(categoryName)
-					ranks.append(graph_data[day]["Ranks"][j].split()[0].replace(",",""))
-					categories.append(categoryName)
-				yRank = {
-					'Date': Date_range[day],
-					'value': ranks, 
-					'category': categories}
-				dayRank.append(yRank)
-			else: #only one category
-				print("3rd case")
-				categoryName = ' '.join(graph_data[day]["Ranks"][0].split()[2:])
+				categoryName = ' '.join(graph_data[day]["Ranks"][j].split()[2:])
 				print(categoryName)
-				yRank = {
-						'Date': Date_range[day],
-						'value': [graph_data[day]["Ranks"][0].split()[0].replace(",","")], 
-						'category': [categoryName]}
-				dayRank.append(yRank)
+				ranks.append(graph_data[day]["Ranks"][j].split()[0].replace(",",""))
+				categories.append(categoryName)
+			yRank = {
+				'Date': Date_range[day],
+				'value': ranks, 
+				'category': categories}
+			dayRank.append(yRank)
 
 		#categoryName = ' '.join(graph_data[day]["Ranks"][i].split()[2:])
 		#print(categoryName)
