@@ -119,7 +119,7 @@ def update_graph(selected_dropdown_value):
 	dayRank = []
 	RecentDataIndex = len(graph_data)-1
 	#dynamically create the lines on the graph
-	#print(graph_data)
+	print(graph_data)
 
 		
 	#Regular case
@@ -149,8 +149,6 @@ def update_graph(selected_dropdown_value):
 	i = 0
 	rank = 0
 
-	print(dayRank)
-	print("LEN DAY :", len(dayRank)-1)
 
 	# for k in range(len(dayRank)):
 	# 	print(" ", i, " ", dayRank[k])
@@ -161,28 +159,33 @@ def update_graph(selected_dropdown_value):
 		
 		while i < len(dayRank)-1:
 			xCoord.append(dayRank[i]["Date"])
-			print(dayRank[i]["Date"])
+			#print(dayRank[i]["Date"])
 			yCoord.append(dayRank[i]["value"][rank])
 			
 			if dayRank[i]["category"] != dayRank[i+1]["category"]: #if there's a category change
 				graphData.append({'Dates':xCoord,'y':yCoord, 'category':dayRank[i]["category"][rank] })
-				print(len(dayRank[i]["category"]) - 1)
 				if rank < len(dayRank[i]["category"]) - 1:
 					print("rank: ",rank)
 					i = beginIndex
 					rank = rank + 1
 					break
 				else: #if it's drawing the last category for the segment, continue the line onto the next subsequent categories
-					print("end i: ",i)
-					print(len(dayRank[i+1]["category"]))
+					yCoord.append(dayRank[i]["value"][rank])
 					rank = 0
 					beginIndex = i + 1
 					i = beginIndex
 					break
 			i = i + 1
-		if i == len(dayRank)-1: #graph the remaining lines once it reaches the last ranking on file
+		if i == len(dayRank)-1: #graph the remaining lines once it reaches the last rankings on file
+			xCoord.append(dayRank[i]["Date"]) #grab the latest data
+			yCoord.append(dayRank[i]["value"][rank])
 			graphData.append({'Dates':xCoord,'y':yCoord, 'category':dayRank[i]["category"][rank] })
-			break
+			if rank == len(dayRank[i]["category"])-1:
+				break
+			else:
+				i = beginIndex
+			rank = rank + 1
+			#break
 		#rank = rank + 1
 
 	#print("This is graph Data: \n",graphData)
