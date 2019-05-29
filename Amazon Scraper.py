@@ -82,7 +82,7 @@ server.secret_key = os.environ.get('secret_key', 'secret')
 app = dash.Dash('app', server=server)
 app.scripts.config.serve_locally = False
 
-file_names = [os.path.basename(x) for x in glob.glob('/Users/justinm/Documents/Coding/Rankings/*.json')]
+file_names = [os.path.basename(x) for x in glob.glob('/Users/justinmac/Documents/Python/Rankings/*.json')]
 
 app.layout = dashHTML.Div([
 	dashHTML.H1('Category Rankings'),
@@ -201,7 +201,7 @@ def update_graph(selected_dropdown_value):
 			for j in range(len(graph_data[day]["Ranks"])):
 				
 				categoryName = ' '.join(graph_data[day]["Ranks"][j].split()[2:])
-				print(categoryName)
+				#print(categoryName)
 				ranks.append(graph_data[day]["Ranks"][j].split()[0].replace(",",""))
 				categories.append(categoryName)
 			yRank = {
@@ -210,6 +210,7 @@ def update_graph(selected_dropdown_value):
 				'category': categories}
 			dayRank.append(yRank)
 
+	print(len(dayRank))
 		#categoryName = ' '.join(graph_data[day]["Ranks"][i].split()[2:])
 		#print(categoryName)
 		#print(dayRank[0].items())
@@ -225,7 +226,7 @@ def update_graph(selected_dropdown_value):
 		# }})
 		# dayRank = []
 
-	print(dayRank)
+	#print(dayRank)
 
 	# split the days based on category change
 
@@ -242,10 +243,46 @@ def update_graph(selected_dropdown_value):
 	# 	}})
 	# dayRank = []
 
+	# for rank in range(len(dayRank[i]["value"])): #one data line per category
+	# 	print(len(dayRank[i]["value"]))
+	# 	yCoord = []
+	# 	for j in range(len(dayRank)-1):
+	# 		#if the number of categories changed
+	# 		if dayRank[j]["category"] != dayRank[j+1]["category"]:
+	# 			print("Category has changed")
+	# 			break
+	# 		yCoord.append(dayRank[j]["value"][rank])
+	# 	CategoryData.append({
+	# 		'x': Date_range, 
+	# 		'y': yCoord,
+	# 		'type': 'line', 
+	# 		'name': dayRank[0]["category"][rank],
+	# 		'line': {
+	# 		'width': 3,
+	# 		'shape': 'spline',
+	# 		'exponentformat': 'none',
+	# 	}})
+
+	#Finally got the case where it starts off with 3 categories but ends in 1 category but will only stop once category changes, 
+	#does not plot new data points
+	'''
 	for rank in range(len(dayRank[i]["value"])): #one data line per category
+		print("Length of day rank value: ", len(dayRank[i]["value"]))
+		yCoord = []
+		for j in range(len(dayRank)-1):
+			#if the number of categories changed
+			if dayRank[j]["category"] != dayRank[j+1]["category"]:
+				print("Category has changed")
+				print(dayRank[j]["category"])
+				print(dayRank[j+1]["category"])
+				yCoord.append(dayRank[j+1]["value"][rank])
+				break
+
+			else:
+				yCoord.append(dayRank[j]["value"][rank])
 		CategoryData.append({
 			'x': Date_range, 
-			'y': [dayRank[i]["value"][rank] for i in range(len(dayRank))],
+			'y': yCoord,
 			'type': 'line', 
 			'name': dayRank[0]["category"][rank],
 			'line': {
@@ -253,7 +290,357 @@ def update_graph(selected_dropdown_value):
 			'shape': 'spline',
 			'exponentformat': 'none',
 		}})
-	dayRank = []
+	'''
+	#Plots the days where the category changes but not the lines
+
+	'''
+	stopDate = 0
+	for i in range(len(dayRank)-1):
+		for rank in range(len(dayRank[i]["category"])): #one data line per category
+			print("Length of day rank value: ", len(dayRank[i]["value"]))
+			yCoord = []
+			if dayRank[i]["category"] != dayRank[i+1]["category"]:
+				print("Category has changed")
+				print(dayRank[i]["category"])
+				print(dayRank[i+1]["category"])
+				yCoord.append(dayRank[i]["value"][rank])
+				stopDate = i+1
+				#break
+
+			else:
+				yCoord.append(dayRank[i+1]["value"][rank])
+
+			print("i ",i)
+			print("stop ", stopDate)
+			CategoryData.append({
+				'x': Date_range[i:stopDate], 
+				'y': yCoord,
+				'type': 'line', 
+				'name': dayRank[i]["category"][rank],
+				'line': {
+				'width': 3,
+				'shape': 'spline',
+				'exponentformat': 'none',
+			}})
+	'''
+
+	#Plots individuals points but not lines VERY CLOSE!!!!!
+	'''
+	stopDate = len(dayRank)
+	for i in range(len(dayRank)-1):
+		for rank in range(len(dayRank[i]["category"])): #one data line per category
+			print("Length of day rank value: ", len(dayRank[i]["value"]))
+			yCoord = []
+			if dayRank[i]["category"] != dayRank[i+1]["category"]:
+				print("Category has changed")
+				print(dayRank[i]["category"])
+				print(dayRank[i+1]["category"])
+				yCoord.append(dayRank[i]["value"][rank])
+				stopDate = i+1
+				#break
+
+			else:
+				yCoord.append(dayRank[i+1]["value"][rank])
+
+			print("i ",i)
+			print("stop ", stopDate)
+			CategoryData.append({
+				'x': Date_range[i:stopDate], 
+				'y': yCoord,
+				'type': 'line', 
+				'name': dayRank[i]["category"][rank],
+				'line': {
+				'width': 3,
+				'shape': 'spline',
+				'exponentformat': 'none',
+			}}
+)	
+
+	'''
+	'''
+	works but doesn't separate lines
+
+	catIndex = 0
+	dayIndex = 0
+	while catIndex < len(dayRank[dayIndex]["value"]): #one data line per category
+		#print("Length of dayIndex catIndex value: ", len(dayRank[i]["value"]))
+		yCoord = []
+		for j in range(len(dayRank)-1):
+			#if the number of categories changed
+			if dayRank[j]["category"] != dayRank[j+1]["category"]:
+				print("Category has changed")
+				print(dayRank[j]["category"])
+				print(dayRank[j+1]["category"])
+				#catIndex = len(dayRank[j+1])
+				dayIndex = j+1
+				yCoord.append(dayRank[j]["value"][catIndex])
+				#break
+
+			else:
+				yCoord.append(dayRank[j+1]["value"][catIndex])
+		CategoryData.append({
+			'x': Date_range, 
+			'y': yCoord,
+			'type': 'line', 
+			'name': dayRank[dayIndex]["category"][catIndex],
+			'line': {
+			'width': 3,
+			'shape': 'spline',
+			'exponentformat': 'none',
+		}})
+		catIndex = catIndex + 1
+
+	graphStartDates = [0]
+	for day in range(len(dayRank)):
+		for rank in range(len(dayRank[day]["value"])):
+			if dayRank[day]["category"] != dayRank[day+1]["category"]: #category has changed
+				graphStartDates.append(
+	'''			
+
+	#dayRank = []
+	'''
+	# Displays multiple lines
+
+	catIndex = 0 #keeps track of how many categories in a day
+	stopIndex = len(dayRank) #initialize stop index to last date on file
+	beginIndex = 0
+	j = 0;
+	Finished = False
+	while catIndex < len(dayRank[beginIndex]["value"])-1: #one data line per category
+		#print("Length of Index value: ", len(dayRank[i]["value"]))
+		print(catIndex)
+		print(len(dayRank[beginIndex]["value"]))
+		yCoord = []
+		while not Finished: 
+			while j < len(dayRank)-1:
+				#if the number of categories changed 
+				if(catIndex == len(dayRank[j]["value"])-1): #category finished
+					print(yCoord)
+					Finished = True
+					print("cat index:", catIndex)
+					catIndex = 0;
+					j = beginIndex
+					break
+				if dayRank[j]["category"] != dayRank[j+1]["category"]:
+					#print("Category has changed ", j+1)
+					print(dayRank[j]["category"])
+					print(dayRank[j+1]["category"])
+					#catIndex = len(dayRank[j+1])
+					beginIndex = j+1
+					j = beginIndex
+					#stopIndex = j
+					#print(len(dayRank[j]["value"]))
+					yCoord.append(dayRank[j]["value"][catIndex])
+					break
+				else:
+					print(j)
+					print(catIndex)
+					print(dayRank[j]["category"])
+					print(dayRank[j+1]["category"])
+					yCoord.append(dayRank[j]["value"][catIndex])
+				
+				j = j + 1;
+			print("prints new graph data")
+			CategoryData.append({
+				'x': Date_range[beginIndex:stopIndex], #Date_range[beginIndex:stopIndex]
+				'y': yCoord,
+				'type': 'line', 
+				'name': dayRank[beginIndex]["category"][catIndex],
+				'line': {
+				'width': 3,
+				'shape': 'spline',
+				'exponentformat': 'none',
+			}})
+			catIndex = catIndex + 1
+			if(catIndex == len(dayRank[j]["value"])-1): #category finished
+				print(yCoord)
+				Finished = True
+				break
+				'''
+
+	'''
+	catIndex = 0 #keeps track of how many categories in a day
+	stopIndex = len(dayRank) #initialize stop index to last date on file
+	beginIndex = 0
+	j = 0;
+	Finished = False
+	while catIndex <= len(dayRank[beginIndex]["value"])-1: #one data line per category
+		#print("Length of Index value: ", len(dayRank[i]["value"]))
+		#print("Cat index: ", catIndex)
+		#print("Begin index: ", beginIndex)
+		#print("condition: ", len(dayRank[beginIndex]["value"])-1)
+		yCoord = []
+		while not Finished: 
+			while j < len(dayRank)-1:
+				#if the number of categories changed 
+				print(j)
+				print("Cat index: ", catIndex)
+				print("condition: ", len(dayRank[j]["value"])-1)
+				if(catIndex == len(dayRank[j]["value"])-1): #category finished
+					print(yCoord)
+					Finished = True
+					print("Finished cat index:", catIndex)
+					#catIndex = 0;
+					stopIndex = j
+					j = beginIndex #only when it finishes the category, start where it left off
+					print("hi")
+					break
+				if dayRank[j]["category"] != dayRank[j+1]["category"]:
+					#print("Category has changed ", j+1)
+					print(dayRank[j]["category"])
+					print(dayRank[j+1]["category"])
+					#catIndex = len(dayRank[j+1])
+					if (catIndex != len(dayRank[j]["value"])-1): #if the graph hasn't finished graphing the categories
+						j = beginIndex
+					beginIndex = j+1 #where the next range should start now there's a new category
+					#stopIndex = j
+					#print(len(dayRank[j]["value"]))
+					yCoord.append(dayRank[j]["value"][catIndex])
+					break
+				else:
+					yCoord.append(dayRank[j]["value"][catIndex])
+				
+				j = j + 1;
+			print("prints new graph data")
+			#print(yCoord)
+			catIndex = catIndex + 1
+			CategoryData.append({
+				'x': Date_range[beginIndex:stopIndex], #Date_range[beginIndex:stopIndex]
+				'y': yCoord,
+				'type': 'line', 
+				'name': dayRank[beginIndex]["category"][catIndex],
+				'line': {
+				'width': 3,
+				'shape': 'spline',
+				'exponentformat': 'none',
+			}})
+			
+			print("Length of categories: ", len(dayRank[j]["value"]))
+			if(catIndex == len(dayRank[j]["value"])-1): #category finished
+				print("enters here!")
+				Finished = True
+				break
+	'''
+
+	'''
+	Grabs the latest data and plots it (multiple lines) almost there!
+	for rank in range(len(dayRank[i]["value"])): #one data line per category
+		print("Length of day rank value: ", len(dayRank[i]["value"]))
+		yCoord = []
+		j = 0
+		while j < len(dayRank)-1:
+			#if the number of categories changed
+			if dayRank[j]["category"] != dayRank[j+1]["category"]:
+				print("Category has changed")
+				print(dayRank[j]["category"])
+				print(dayRank[j+1]["category"])
+				yCoord.append(dayRank[j+1]["value"][rank])
+				j = j + 1
+				break
+
+			else:
+				yCoord.append(dayRank[j]["value"][rank])
+			j = j + 1
+		CategoryData.append({
+			'x': Date_range[j:len(dayRank)], 
+			'y': yCoord,
+			'type': 'line', 
+			'name': dayRank[0]["category"][rank],
+			'line': {
+			'width': 3,
+			'shape': 'spline',
+			'exponen
+	'''
+	'''
+	Closest I've ever gotten! Multiple lines separating different categories
+	
+	graphData = []
+	stopDate = len(dayRank)
+	beginIndex = 0
+	i = 0
+	rank = 0
+	while rank < len(dayRank[i]["category"]): #one data line per category
+		xCoord = []
+		yCoord = []
+		print("hola")
+		while i < len(dayRank)-1:
+			xCoord.append(dayRank[i]["Date"])
+			yCoord.append(dayRank[i]["value"][rank])
+			if dayRank[i]["category"] != dayRank[i+1]["category"]:
+				graphData.append({'Dates':xCoord,'y':yCoord, 'category':dayRank[i]["category"][rank] })
+				if rank < len(dayRank[i]["category"]) - 1:
+					print("poop")
+					i = beginIndex
+					break
+				else:
+					rank = 0
+					beginIndex = i + 1
+					i = beginIndex
+				break
+			i = i + 1
+		rank = rank + 1
+
+	print("This is graph Data: \n",graphData)
+
+	
+
+	for j in range(len(graphData)):
+		dates = graphData[j]["Dates"]
+		CategoryData.append({
+			'x': dates, 
+			'y': graphData[j]["y"],
+			'type': 'line', 
+			'name': graphData[j]["category"],
+			'line': {
+			'width': 3,
+			'shape': 'spline',
+			'exponentformat': 'none',
+		}})
+	'''
+	graphData = []
+	stopDate = len(dayRank)
+	beginIndex = 0
+	i = 0
+	rank = 0
+	while rank < len(dayRank[i]["category"]): #one data line per category
+		xCoord = []
+		yCoord = []
+		
+		while i < len(dayRank)-1:
+			xCoord.append(dayRank[i]["Date"])
+			yCoord.append(dayRank[i]["value"][rank])
+			if dayRank[i]["category"] != dayRank[i+1]["category"]:
+				graphData.append({'Dates':xCoord,'y':yCoord, 'category':dayRank[i]["category"][rank] })
+				if rank < len(dayRank[i]["category"]) - 1:
+					print("poop")
+					i = beginIndex
+					break
+				else: #if it's drawing the last category for the segment, continue the line onto the next subsequent categories
+					print("dog")
+					rank = 0
+					beginIndex = i + 1
+					i = beginIndex
+					break
+			i = i + 1
+		rank = rank + 1
+
+	#print("This is graph Data: \n",graphData)
+
+	
+
+	for j in range(len(graphData)):
+		dates = graphData[j]["Dates"]
+		CategoryData.append({
+			'x': dates, 
+			'y': graphData[j]["y"],
+			'type': 'line', 
+			'name': graphData[j]["category"],
+			'line': {
+			'width': 3,
+			'shape': 'spline',
+			'exponentformat': 'none',
+		}})
+	
 
 	return{
 		'data': CategoryData,
@@ -268,6 +655,7 @@ def update_graph(selected_dropdown_value):
 			}
 		}
 	}
+	
 
 def AmazonParser(url, ASIN): #Grab information from ASIN URL and export it as a dictionary
 	headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.98 Safari/537.36'}
@@ -380,7 +768,7 @@ def ReadASINList():
 def combineASINData(ASIN): #find all data for specific ASIN, while populating optionList
 #	date
 	print(ASIN)
-	path = glob.glob("/Users/justinm/Documents/Coding/Rankings/*.json") #Grab all JSON files from path
+	path = glob.glob("/Users/justinmac/Documents/Python/Rankings/*.json") #Grab all JSON files from path
 	#file_names = [os.path.basename(x) for x in glob.glob('/Users/justinm/Documents/Coding/Rankings/*.json')]
 	global Products #declaring variable to modify global variable
 	global graph_data
@@ -417,9 +805,8 @@ if __name__ == "__main__":
 	if grabInfo == 'y':
 		print("Gathering new information on ASINs")
 		ReadASINList() #Read New Data
-
 	'''
-	#combineASINData("Initializing")
-	combineASINData("B07PGW1MSR")
+	
+	combineASINData("Initializing")
 	#print(graph_data)
 	app.run_server(debug=False) #Build Graph using Dash
