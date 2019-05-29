@@ -20,3 +20,5 @@ Graph output of Amazon best seller ranking
 <br />
 
 ![alt text](https://github.com/jmac006/Amazon-Listing-Parser/blob/master/category.PNG)
+
+Because Amazon consistently changes listing categories, I had to modify my code to show the data with the category changes. So, it plots a new line whenever a category change occurs.
