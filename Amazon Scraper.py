@@ -15,6 +15,7 @@ from time import sleep
 import re
 import time
 import glob #import all files in folder
+from difflib import SequenceMatcher #find similarities in category names
 
 #Dash Dependencies
 import dash
@@ -82,6 +83,8 @@ server.secret_key = os.environ.get('secret_key', 'secret')
 app = dash.Dash('app', server=server)
 app.scripts.config.serve_locally = False
 
+#CHANGE DIRECTORY TO YOUR OWN
+writeFilePath = "Users/justinm/Documents/Coding/Rankings" 
 file_directory = '/Users/justinm/Documents/Coding/Rankings/*.json'
 
 file_names = [os.path.basename(x) for x in glob.glob(file_directory)]
@@ -105,6 +108,8 @@ def update_dropdown(selected_dropdown_value):
 
 @app.callback(Output('my-graph', 'figure'),
 			  [dash.dependencies.Input('my-dropdown', 'value')])
+	
+	
 
 def update_graph(selected_dropdown_value):
 	#clear graph_data when called
@@ -119,7 +124,7 @@ def update_graph(selected_dropdown_value):
 	dayRank = []
 	RecentDataIndex = len(graph_data)-1
 	#dynamically create the lines on the graph
-	print(graph_data)
+	#print(graph_data)
 
 		
 	#Regular case
@@ -162,10 +167,13 @@ def update_graph(selected_dropdown_value):
 			#print(dayRank[i]["Date"])
 			yCoord.append(dayRank[i]["value"][rank])
 			
-			if dayRank[i]["category"] != dayRank[i+1]["category"]: #if there's a category change
+			#if dayRank[i]["category"] != dayRank[i+1]["category"]: #if there's a category change
+			if categoryHasChanged(dayRank[i]["category"], dayRank[i+1]["category"]):
+				#print("This Cat: ", dayRank[i]["category"])
+				#print("Next Cat: ", dayRank[i+1]["category"])
 				graphData.append({'Dates':xCoord,'y':yCoord, 'category':dayRank[i]["category"][rank] })
 				if rank < len(dayRank[i]["category"]) - 1:
-					print("rank: ",rank)
+					#print("rank: ",rank)
 					i = beginIndex
 					rank = rank + 1
 					break
@@ -220,6 +228,31 @@ def update_graph(selected_dropdown_value):
 		}
 	}
 	
+def categoryHasChanged(categories1, categories2): #Input: two array of categories, tests if the categories have changed
+	#print(categories1)
+	if len(categories1) != len(categories2):
+		return True
+	for i in range(len(categories1)):
+		cat1 = ' '.join(categories1[i].split()[-4:])
+		cat2 = ' '.join(categories2[i].split()[-4:])
+		cat1 = cat1.replace(">","")
+		cat2 = cat2.replace(">","")
+		cat1 = cat1.replace("-","")
+		cat2 = cat2.replace("-","")
+		'''
+		try:
+			cat1.remove(">")
+		except ValueError:
+			pass
+		try:
+			cat2.remove(">")
+		except ValueError:
+			pass
+		'''
+		if SequenceMatcher(a=cat1,b=cat2).ratio() < 0.4: #if categories have a low ratio (not similar), categories have changed
+			return True
+	return False
+
 
 def AmazonParser(url, ASIN): #Grab information from ASIN URL and export it as a dictionary
 	headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.98 Safari/537.36'}
@@ -324,8 +357,8 @@ def ReadASINList():
 	#print(file_name)
 	#f=open(file_name,'w')	
 	#json.dump(json_data,f,indent=4) #Convert dictionary to JSON file
-	filePathName = "Users/justinm/Documents/Coding/Rankings"
-	writeToJSONFile(filePathName,file_name,json_data)
+	
+	writeToJSONFile(writeFilePath,file_name,json_data)
 
 
 
