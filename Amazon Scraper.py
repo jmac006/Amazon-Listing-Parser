@@ -195,7 +195,7 @@ def update_graph(selected_dropdown_value):
 	#Regular case
 	for i in range(len(graph_data[0]["Ranks"])): #check to see how many rankings there are and iterate through the number of rankings
 		for day in range(len(Date_range)): #iterate through the days, find the Rankings, and check to see if there are no rankings for that day (y-coord)
-			print(day)
+			#print(day)
 			ranks = []
 			categories = []
 			for j in range(len(graph_data[day]["Ranks"])):
@@ -602,29 +602,43 @@ def update_graph(selected_dropdown_value):
 	beginIndex = 0
 	i = 0
 	rank = 0
+
+	print("LEN DAY :", len(dayRank)-1)
+
+	for k in range(len(dayRank)):
+		print(" ", i, " ", dayRank[k])
+	
 	while rank < len(dayRank[i]["category"]): #one data line per category
 		xCoord = []
 		yCoord = []
 		
 		while i < len(dayRank)-1:
 			xCoord.append(dayRank[i]["Date"])
+			print(dayRank[i]["Date"])
 			yCoord.append(dayRank[i]["value"][rank])
+			
 			if dayRank[i]["category"] != dayRank[i+1]["category"]:
+				print("potato chips")
 				graphData.append({'Dates':xCoord,'y':yCoord, 'category':dayRank[i]["category"][rank] })
+				print(len(dayRank[i]["category"]) - 1)
 				if rank < len(dayRank[i]["category"]) - 1:
-					print("poop")
+					print("rank: ",rank)
 					i = beginIndex
+					rank = rank + 1
 					break
 				else: #if it's drawing the last category for the segment, continue the line onto the next subsequent categories
-					print("dog")
+					print("end i: ",i)
+					print(len(dayRank[i+1]["category"]))
 					rank = 0
 					beginIndex = i + 1
 					i = beginIndex
 					break
 			i = i + 1
-		rank = rank + 1
+		if i == len(dayRank)-1:
+			break
+		#rank = rank + 1
 
-	#print("This is graph Data: \n",graphData)
+	print("This is graph Data: \n",graphData)
 
 	
 
