@@ -22,3 +22,10 @@ Graph output of Amazon best seller ranking
 ![alt text](https://github.com/jmac006/Amazon-Listing-Parser/blob/master/category.PNG)
 
 Because Amazon consistently changes listing categories, I had to modify my code to show the data with the category changes. So, it plots a new line whenever a category change occurs.
+
+To access and share the ranking graph data with another computer, you must deploy the local server:
+- Download and install ngrok and 
+  - Mac: brew cask install ngrok
+  - Windows: install from https://ngrok.com/download
+  - Type *ngrok http 8050* into the terminal to forward the localhost, and it will output a ngrok domain
+  
