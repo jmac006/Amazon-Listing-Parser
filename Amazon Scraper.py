@@ -69,6 +69,10 @@ ASIN_List = ['B06Y27GL9S', #Dr. Fulbright Kegel Balls
 			'B07FXXX4JJ', #USA Cocks Medium 9 in.
 			'B07FXY77BF', #USA Cocks Medium 10 in.
 			'B07PGW1MSR', #Auto Spray Enema Bulb
+			'B07RXZSK5S', #Aloe Vera Lube
+			'B07RYYJ4JX', #4 Piece Lubricant Injector Set
+			'B07S9FFCHH', #Passion Injector Kit
+			'B01LD7PFU8', #Wand Essentials Handheld Massage Wand 
 			]
 ASIN_Dict = [] #contains the name along with the ASIN
 json_data = [] #list of dictionaries
@@ -124,9 +128,7 @@ def update_graph(selected_dropdown_value):
 	dayRank = []
 	RecentDataIndex = len(graph_data)-1
 	#dynamically create the lines on the graph
-	#print(graph_data)
-
-		
+			
 	#Regular case
 	day = 0
 	for i in range(len(graph_data[day]["Ranks"])): #check to see how many rankings there are and iterate through the number of rankings
@@ -146,17 +148,12 @@ def update_graph(selected_dropdown_value):
 			dayRank.append(yRank)
 			day = day + 1
 
-	#print(len(dayRank))
 	
 	#Idea: graph one line at a time based on categorical segments, place the graph data into an array, and output the lines
 	graphData = []
 	beginIndex = 0
 	i = 0
 	rank = 0
-
-
-	# for k in range(len(dayRank)):
-	# 	print(" ", i, " ", dayRank[k])
 	
 	while rank < len(dayRank[i]["category"]): #one data line per category
 		xCoord = []
@@ -164,16 +161,12 @@ def update_graph(selected_dropdown_value):
 		
 		while i < len(dayRank)-1:
 			xCoord.append(dayRank[i]["Date"])
-			#print(dayRank[i]["Date"])
 			yCoord.append(dayRank[i]["value"][rank])
 			
-			#if dayRank[i]["category"] != dayRank[i+1]["category"]: #if there's a category change
+			#If there's a category change, draw a new line
 			if categoryHasChanged(dayRank[i]["category"], dayRank[i+1]["category"]):
-				#print("This Cat: ", dayRank[i]["category"])
-				#print("Next Cat: ", dayRank[i+1]["category"])
 				graphData.append({'Dates':xCoord,'y':yCoord, 'category':dayRank[i]["category"][rank] })
 				if rank < len(dayRank[i]["category"]) - 1:
-					#print("rank: ",rank)
 					i = beginIndex
 					rank = rank + 1
 					break
@@ -193,12 +186,7 @@ def update_graph(selected_dropdown_value):
 			else:
 				i = beginIndex
 			rank = rank + 1
-			#break
-		#rank = rank + 1
 
-	#print("This is graph Data: \n",graphData)
-
-	
 
 	for j in range(len(graphData)):
 		dates = graphData[j]["Dates"]
@@ -239,16 +227,7 @@ def categoryHasChanged(categories1, categories2): #Input: two array of categorie
 		cat2 = cat2.replace(">","")
 		cat1 = cat1.replace("-","")
 		cat2 = cat2.replace("-","")
-		'''
-		try:
-			cat1.remove(">")
-		except ValueError:
-			pass
-		try:
-			cat2.remove(">")
-		except ValueError:
-			pass
-		'''
+		#Check if the categories are similar enough to merge into one category
 		if SequenceMatcher(a=cat1,b=cat2).ratio() < 0.4: #if categories have a low ratio (not similar), categories have changed
 			return True
 	return False
@@ -322,7 +301,7 @@ def AmazonParser(url, ASIN): #Grab information from ASIN URL and export it as a 
 			for i in range(len(RANKING)):
 				RANKING[i] = RANKING[i].strip()
 
-			print(RANKING)
+			#print(RANKING)
 
 			data = {
 					'NAME':NAME,
@@ -372,7 +351,7 @@ def combineASINData(ASIN): #find all data for specific ASIN, while populating op
 	graph_data = []
 	for file in path:
 		#f = open(file, 'r')
-		data = json.loads(open(file).read())
+		data = json.loads(open(file).read()) #open each record for each day and load the ranking for the day
 		for i in data:
 			data_ASIN = i['URL'].replace("http://www.amazon.com/dp/","")
 			key = {'NAME': i['NAME'], 'ASIN': data_ASIN}
@@ -382,7 +361,12 @@ def combineASINData(ASIN): #find all data for specific ASIN, while populating op
 			if i['URL'] == ("http://www.amazon.com/dp/" + ASIN):
 				#print(file)
 				rankings = i["RANK"]
+				if rankings == ['No Ranking']: #If there is no rank, don't append it to graph_data
+					continue
 				del rankings[0] #remove "Amazon Best Sellers Rank title from list"
+				for j in range(len(rankings)):
+					rankings[j] = rankings[j].replace(",","") 
+				#print(rankings)
 				file_date = os.path.basename(file).split()[0]
 				if file_date == "Baseline": #Baseline data
 					graph_data.insert(0,{'Date': i["DATE"],'Ranks': rankings})
@@ -394,16 +378,16 @@ def combineASINData(ASIN): #find all data for specific ASIN, while populating op
 	#print(dates)
 	global optionList
 	optionList = [{'label': Products[index]["NAME"], 'value': Products[index]["ASIN"]} for index in range(len(Products))]
-	#print(optionList)
 
 if __name__ == "__main__":
-	'''
+	
 	grabInfo = input("Do you want to gather new information from the list of ASINs? (y/n)\n")
 	if grabInfo == 'y':
 		print("Gathering new information on ASINs")
 		ReadASINList() #Read New Data
-	'''
+	
 	
 	combineASINData("Initializing")
 	#print(graph_data)
 	app.run_server(debug=False) #Build Graph using Dash
+	#app.run_server(debug=False,port=8050,host="0.0.0.0")
