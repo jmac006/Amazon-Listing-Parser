@@ -29,3 +29,4 @@ To access and share the ranking graph data with another computer, you must deplo
   - Windows: install from https://ngrok.com/download
   - Type *ngrok http 8050* into the terminal to forward the localhost, and it will output a ngrok domain
   
+An easier method would be to use repl.it. Just change the host to '0.0.0.0' and it will now deploy it onto a domain.
